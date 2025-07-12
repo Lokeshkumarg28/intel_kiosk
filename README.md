@@ -17,14 +17,14 @@ A self-service healthcare kiosk system designed to streamline patient registrati
 ---
 
 ## 📁 Project Structure
-
+```
 📦 intel/
 ├── face_id_backend.py           # Face recognition logic using OpenCV
 ├── language_backend.py          # Label fetch API (Flask)
 ├── index.html                   # Main frontend UI (HTML + CSS + JS)
 ├── virtal_image_frontend.jpeg   # UI wireframe / mockup image
 ├── REPORT_HEALTHCARE_KIOSK.pdf  # Final project report
-
+```
 ---
 
 ## 🛠️ Technologies Used
