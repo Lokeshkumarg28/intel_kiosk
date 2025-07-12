@@ -58,8 +58,8 @@ To improve healthcare access in rural and semi-urban India by reducing wait time
 
 ## 📌 Live Demo
 
+Prototype_demo_video
 https://lokeshkumarg28.github.io/intel_kiosk/
-
 ---
 
 ## 🤝 Authors
