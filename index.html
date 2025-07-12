@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Health App & Kiosk</title>
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa 0%, #c3ffe7 100%);
+      margin: 0; padding: 0; color: #004d40;
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+      justify-content: flex-start;
+    }
+    header {
+      background: linear-gradient(90deg,#00bfae 0%, #00e676 100%);
+      color: #fff;
+      width: 100%;
+      padding: 1.3rem 0 1.1rem 0;
+      font-size: 2.1rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 2px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      user-select: none;
+      border-radius: 0 0 24px 24px;
+      margin-bottom: 0.5rem;
+    }
+    main {
+      flex-grow: 1;
+      width: 100%; max-width: 520px; padding: 1rem; display: flex; flex-direction: column; align-items: center;
+    }
+    section {
+      background: rgba(255,255,255,0.97);
+      border-radius: 20px;
+      box-shadow: 0 4px 24px rgba(0,191,174,0.08);
+      width: 100%;
+      max-width: 520px;
+      padding: 2rem 2.5rem;
+      margin: 1.2rem 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      transform: scale(0.98) translateY(20px);
+      transition: all 0.6s cubic-bezier(.4,2,.3,1);
+    }
+    section.active {
+      display: flex;
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      animation: fadeInSection 0.7s cubic-bezier(.4,2,.3,1);
+    }
+    @keyframes fadeInSection {
+      0% { opacity:0;
+      transform: scale(0.98) translateY(20px);}
+      100% { opacity:1;
+      transform: scale(1) translateY(0);}
+    }
+    h2 {
+      margin-top: 0;
+      color: #00796b;
+      font-weight: 700;
+      letter-spacing: 1px;
+      font-size: 1.5rem;
+      user-select: none;
+      margin-bottom: 0.7rem;
+    }
+    button {
+      background: linear-gradient(90deg,#00bfae 0%, #00e676 100%);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      padding: 1rem 2.2rem;
+      font-size: 1.1rem;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      margin: 0.8rem 0.2rem;
+      transition: background 0.3s, transform 0.2s;
+      user-select: none;
+      min-width: 120px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    button:hover:not(:disabled) { background: linear-gradient(90deg,#00bfae 0%, #009688 100%); transform: scale(1.03);}
+    button:disabled { background: #b2dfdb;
+      color: #fff; cursor: not-allowed; }
+    .lang-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.3rem 1.3rem;
+      margin-top: 1.2rem;
+      margin-bottom: 0.7rem;
+      width: 100%;
+      max-width: 420px;
+    }
+    .lang-button {
+      display: flex; flex-direction: column; align-items: center; font-size: 1.1rem;
+      margin-bottom: 0.3rem;
+    }
+    .lang-texticon {
+      width: 58px; height: 58px; margin-bottom: 0.3rem;
+      border-radius: 50%; border: 2.5px solid #00bfae; background: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 700; color: #00bfae;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: border 0.2s, box-shadow 0.2s;
+    }
+    .lang-button .lang-texticon:hover, .lang-button.selected .lang-texticon {
+      border-color: #00796b;
+      box-shadow: 0 4px 14px #00e67644;
+      cursor:pointer;
+    }
+    label {
+      font-weight: 600;
+      margin-top: 1.1rem;
+      display: block;
+      user-select: none;
+      letter-spacing: 0.5px;
+    }
+    input[type="text"], input[type="number"], input[type="tel"], input[type="email"], select, input[type="date"], input[type="time"] {
+      width: 100%;
+      max-width: 340px; padding: 0.7rem 1rem; border-radius: 10px; border: 1.5px solid #b2dfdb;
+      font-size: 1.08rem; margin-top: 0.3rem; background: #f8fafd;
+      font-family: 'Montserrat', Arial, sans-serif;
+      box-shadow: 0 1px 4px #00bfae11;
+      transition: border 0.2s;
+      margin-bottom: 0.7rem;
+      display: block;
+    }
+    input:focus, select:focus { border: 2px solid #00bfae; outline: none;
+    }
+    input[type="checkbox"] { transform: scale(1.2); margin-right: 0.5rem; vertical-align: middle; cursor: pointer;
+    }
+    .info-text { max-width: 600px; margin: 0.8rem auto 1.2rem; font-size: 1.09rem; color: #00695c;
+    text-align: center;}
+    .qr-code { width: 170px; height: 170px; margin: 1rem auto; background: #fff; border: 4px solid #00bfae;
+    border-radius: 20px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; color: #004d40; user-select: none;
+    box-shadow: 0 2px 8px #00bfae22;}
+    .camera-placeholder { width: 260px; height: 180px; background: #e0f7fa; border-radius: 15px;
+    box-shadow: 0 2px 12px #00bfae33; margin: 1rem 0; position: relative; display: flex; align-items: center; justify-content: center; color: #004d40; font-weight: 700;
+    font-size: 1.3rem; user-select: none; }
+    .camera-placeholder img { width: 100%; height: 100%; border-radius: 15px; object-fit: cover;
+    }
+    .video-sim { width: 260px; height: 180px; background: #c8e6c9; border-radius: 15px; box-shadow: 0 2px 12px #00bfae33;
+    margin: 1rem 0; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #2e7d32; user-select: none;
+    }
+    .login-icons { display: flex; gap: 2.5rem; margin: 2rem 0 0.5rem 0; justify-content: center;
+    }
+    .login-icon-btn { border: none; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center;
+    }
+    .login-icon-btn img { width: 60px; height: 60px; border-radius: 50%; background: #e0f7fa; box-shadow: 0 2px 10px #00bfae22;
+    margin-bottom: 0.4rem; border: 2px solid #00bfae; }
+    .login-icon-btn span { font-size: 1rem; color: #00796b; font-weight: 600;
+    }
+    .thankyou { font-size:2.3rem; color:#00bfae; font-weight:700; margin-top:2rem; text-align:center; letter-spacing:2px;
+    animation: thankpop 1.5s cubic-bezier(.5,1.5,.5,1) both;}
+    @keyframes thankpop { 0%{transform:scale(.7); opacity:0;} 100%{transform:scale(1);
+    opacity:1;} }
+    .welcome-kiosk { font-size:2.0rem; color:#00bfae; font-weight:700; margin:2.5rem 0 1.5rem 0; text-align:center; letter-spacing:1px;
+    }
+    .welcome-app-img { width: 120px; height: 120px; margin-bottom: 1.4rem; border-radius: 20px;
+    box-shadow: 0 2px 12px #00bfae33;}
+    .welcome-app-title { font-size:2.1rem; color:#00bfae; font-weight:700; margin-bottom:0.8rem; text-align:center;
+    }
+    .welcome-app-desc { font-size:1.18rem; color:#00796b; margin-bottom:1.8rem; text-align:center;
+    }
+    /* Calendar Styling */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        background: transparent;
+        bottom: 0;
+        color: transparent;
+        cursor: pointer;
+        height: auto;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: auto;
+    }
+    input[type="date"] {
+        position: relative;
+    }
+    input[type="date"]::before {
+        content: attr(data-placeholder);
+        width: 100%;
+        color: #888;
+        background: #f8fafd;
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0.7rem 1rem;
+        border-radius: 10px;
+        z-index: 1;
+        pointer-events: none;
+    }
+    input[type="date"].has-value::before {
+        display: none;
+    }
+    input[type="date"].date-error-input {
+        border: 2px solid #d9534f; /* Red border */
+        background-color: #ffebee; /* Light red background */
+    }
+
+    /* Face Registration/Recognition Styles */
+    .webcam-container {
+      margin: 1.5rem 0;
+      border: 2px solid #00bfae;
+      border-radius: 15px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 320px;
+      height: 240px;
+      background-color: #e0f7fa;
+      position: relative;
+    }
+
+    .webcam-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); /* Mirror effect for selfie */
+    }
+
+    .webcam-container canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); /* Mirror effect for selfie */
+      display: none; /* Hide until photo is captured/uploaded */
+    }
+
+    .upload-preview {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 15px;
+      display: none; /* Hidden by default */
+      margin-top: 1rem;
+    }
+
+    .face-status {
+      margin-top: 1rem;
+      font-weight: 600;
+      color: #00796b;
+      text-align: center;
+    }
+    .face-error {
+      color: #d9534f;
+    }
+    /* Kiosk specific webcam placeholder for live scanning */
+    #kiosk-face-scan-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scaleX(-1); /* Mirror effect for selfie */
+        border-radius: 15px;
+    }
+
+
+    @media (max-width: 600px) {
+      main, section { max-width:98vw; padding:1rem;
+      }
+      .lang-buttons { grid-template-columns: repeat(2,1fr); }
+      .login-icons { gap: 1.2rem;
+      }
+    }
+  </style>
+  <!-- Flatpickr CSS & JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</head>
+<body>
+<header>Smart Health App & Kiosk</header>
+<main>
+  <!-- App Welcome Page -->
+  <section id="app-welcome" class="active">
+    <img src="https://cdn-icons-png.flaticon.com/512/4320/4320337.png" alt="Welcome" class="welcome-app-img" />
+    <div class="welcome-app-title">Welcome to Smart Health</div>
+    <div class="welcome-app-desc">
+      Your digital gateway to seamless healthcare.<br>
+      Book appointments, check-in at kiosks, and manage your health easily.
+    </div>
+    <button id="btn-app-welcome">Get Started</button>
+  </section>
+  <!-- App Flow -->
+  <section id="app-lang">
+    <h2 data-label="choose_lang">Choose Your Language</h2>
+    <div class="lang-buttons" id="app-lang-btns"></div>
+  </section>
+  <section id="app-register">
+    <h2 data-label="registration_login">Registration / Login</h2>
+    <form id="register-form" autocomplete="off" style="width:100%;max-width:400px;">
+      <label data-label="name">Name <span style="font-weight:400;color:#888">(letters only)</span></label>
+      <input type="text" id="name-input" pattern="[A-Za-z ]+" maxlength="32" required />
+      <label data-label="mobile">Mobile Number <span style="font-weight:400;color:#888">(10 digits)</span></label>
+      <input type="text" id="mobile-input" pattern="[0-9]{10}" maxlength="10" required inputmode="numeric" />
+     
+      <label data-label="aadhaar">Aadhaar Number <span style="font-weight:400;color:#888">(12 digits)</span></label>
+      <input type="text" id="aadhaar-input" pattern="[0-9]{12}" maxlength="12" required inputmode="numeric" />
+      <label data-label="abha_id">ABHA ID (optional)</label>
+      <input type="text" maxlength="14" />
+      <label><input type="checkbox" required /> <span data-label="consent_ehr">I consent to share my EHR with authorized professionals.</span></label>
+      <button type="submit" data-label="register_login_btn">Register / Login</button>
+    </form>
+    <!-- Add button to proceed to face registration after basic details -->
+    <button id="btn-proceed-face-reg" style="margin-top:1.5rem;"
+    data-label="face_registration_link" disabled>Proceed to Face Registration</button>
+  </section>
+
+  <!-- NEW: Face Registration Section -->
+  <section id="face-registration-section">
+    <h2 data-label="face_registration">Face Registration</h2>
+    <p class="info-text" data-label="face_register_prompt">Please capture or upload a clear photo of your face.</p>
+    
+    <div class="webcam-container">
+        <video id="webcam-video" autoplay></video>
+        <canvas id="webcam-canvas" style="display:none;"></canvas>
+        <img id="upload-preview-img" class="upload-preview" />
+    </div>
+
+    <div style="display:flex; gap:10px; margin-bottom:1rem;">
+        <button id="btn-capture-photo" data-label="capture_photo">Capture Photo</button>
+ 
+        <input type="file" id="upload-photo-input" accept="image/*" style="display:none;">
+        <button id="btn-upload-photo" data-label="upload_photo_btn">Upload Photo</button>
+    </div>
+    
+    <button id="btn-register-face" data-label="register_face_btn" disabled>Register Face</button>
+    <div id="face-reg-status" class="face-status"></div>
+    <button id="btn-back-to-register" style="margin-top:1.5rem;"
+    data-label="back_to_registration">Back to Registration</button>
+  </section>
+  <!-- END NEW: Face Registration Section -->
+
+  <section id="app-appointment">
+    <h2 data-label="book_appointment">Book Doctor Appointment</h2>
+    <form id="appointment-form" autocomplete="off" style="width:100%;max-width:500px;">
+      <label data-label="department">Department</label>
+    
+      <select id="app-dept" required>
+        <option value="">--Select--</option>
+        <option>General Medicine</option>
+        <option>Pediatrics</option>
+        <option>Dermatology</option>
+      </select>
+      <label data-label="doctor">Doctor</label>
+     
+      <select id="app-doc" required>
+        <option value="">--Select--</option>
+        <option>Dr. Sharma</option>
+        <option>Dr. Patel</option>
+        <option>Dr. Kumar</option>
+      </select>
+      <label data-label="mode">Mode</label>
+      <select id="app-mode" required>
+        <option value="">--Select--</option>
+        <option>In-Person</option>
+        <option>Teleconsultation</option>
+      </select>
+      <label data-label="date">Date</label>
+      <input type="text" id="app-date" required placeholder="Select Date" />
+      <label data-label="time">Time</label>
+      <select id="app-time" required>
+        <option value="">--Select--</option>
+     
+        <option value="09:00">09:00 AM</option>
+        <option value="11:00">11:00 AM</option>
+        <option value="14:00">02:00 PM</option>
+        <option value="16:00">04:00 PM</option>
+        <option value="18:00">06:00 PM</option>
+        <option value="20:00">08:00 PM</option>
+      </select>
+      <div id="appt-form-error" class="info-text face-error hidden"></div>
+      <button type="submit" data-label="confirm_appointment">Confirm Appointment</button>
+    </form>
+  </section>
+  <section id="app-confirm">
+    <h2>Appointment Confirmed</h2>
+    <div class="info-text" id="app-confirm-details"></div>
+   
+    <div class="qr-code" id="app-confirm-qr"></div>
+    <button id="btn-app-sync">Proceed: Sync with Kiosk</button>
+  
+  </section>
+  <section id="app-sync">
+    <h2>Ready to Visit Kiosk</h2>
+    <div class="info-text" id="app-sync-msg"></div>
+    <div class="qr-code" id="app-sync-qr"></div>
+    <button id="btn-app-done">Done</button>
+  </section>
+  <section id="app-to-kiosk">
+    <div class="welcome-kiosk">Welcome to the Kiosk</div>
+    <div class="camera-placeholder" style="background:#f8fafd;color:#00bfae;font-size:2.5rem;box-shadow:0 2px 12px #00bfae33;">
+      <img src="https://cdn-icons-png.flaticon.com/512/3039/3039439.png" alt="Kiosk" style="width:110px;height:110px;">
+    </div>
+    <button id="btn-to-kiosk">Continue</button>
+  </section>
+  <section id="app-reports">
+    <h2>Your Health Reports</h2>
+    <div class="info-text">
+  
+      <p>Latest Consultation: <span id="report-date"></span></p>
+      <p>Doctor: <span 
+      id="report-doctor"></span></p>
+      <p>Prescription: <span id="report-presc">Amlodipine 5mg daily</span></p>
+      <p>Vitals: BP <span id="report-bp">120/80</span>, BMI <span id="report-bmi">23.5</span></p>
+      <button onclick="alert('Downloaded')">Download PDF</button>
+    </div>
+    <div class="thankyou" id="thankyou-text"></div>
+  </section>
+  <!-- Kiosk Flow -->
+  <section id="kiosk-lang">
+    <h2>Kiosk: Choose Your Language</h2>
+    <div class="lang-buttons" id="kiosk-lang-btns"></div>
+  </section>
+  <section id="kiosk-login">
+    <h2>Kiosk Login</h2>
+    <div class="login-icons">
+ 
+      <button class="login-icon-btn" id="face-login"><img src="https://cdn-icons-png.flaticon.com/512/2922/2922510.png" alt="Face ID"/><span data-label="face_id">Face ID</span></button>
+      <button class="login-icon-btn" id="finger-login"><img src="https://cdn-icons-png.flaticon.com/512/3064/3064197.png" 
+      alt="Fingerprint"/><span>Fingerprint</span></button>
+      <button class="login-icon-btn" id="pid-login"><img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" alt="Patient ID"/><span data-label="patient_id">Patient ID</span></button>
+    </div>
+    <div id="pid-login-box" style="display:none;margin-top:1.2rem;">
+      <label data-label="enter_patient_id">Enter Patient ID</label>
+      <input type="text" id="pid-input" maxlength="16" style="margin-bottom:0.5rem;"
+ />
+      <button id="btn-pid-go">Login</button>
+    </div>
+    <div id="kiosk-login-status" class="info-text"></div>
+  </section>
+  <section id="kiosk-confirm">
+    <h2>Kiosk: Appointment Found</h2>
+    <div class="info-text" id="kiosk-confirm-details"></div>
+    <div class="qr-code" id="kiosk-confirm-qr"></div>
+    <button id="btn-kiosk-confirm">Confirm & Proceed</button>
+  </section>
+  <section id="kiosk-vitals">
+  <h2>Vitals & Diagnostics</h2>
+  <img src="virtal_image_frontend.jpeg" alt="Vitals Image" style="width: 150px; height: auto; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+  <button id="btn-kiosk-vitals">Auto-Capture Vitals</button>
+  <div class="info-text" id="kiosk-vitals-list"></div>
+  <button id="btn-kiosk-vitals-next" style="display:none;">Proceed to Teleconsultation</button>
+</section>
+  <section id="kiosk-tele">
+    <h2>Teleconsultation</h2>
+    <div class="video-sim">Connecting to remote doctor...</div>
+    <button id="btn-kiosk-tele">Start Consultation</button>
+    <div id="kiosk-tele-status" class="info-text"></div>
+    <button id="btn-kiosk-tele-next" style="display:none;">Proceed to Summary</button>
+  </section>
+  <section id="kiosk-summary">
+    <h2>Consultation Summary</h2>
+    <div class="info-text" id="kiosk-summary-details"></div>
+    <button id="btn-kiosk-summary-next">Proceed to Payment</button>
+  </section>
+  <section id="kiosk-payment">
+    <h2>Payment</h2>
+    <div class="info-text">Consultation Fee: ₹500</div>
+    <div class="qr-code"><img src="https://api.qrserver.com/v1/create-qr-code/?data=upi://pay?pa=merchant@upi&pn=HealthKiosk&am=500&cu=INR" alt="UPI QR" style="width:100%;height:100%;border-radius:16px;"
+ /></div>
+    <button id="btn-kiosk-pay">Confirm Payment</button>
+    <div id="kiosk-pay-status" class="info-text"></div>
+  </section>
+</main>
+<footer>© 2025 Smart Health App & Kiosk Demo.
+Built with HTML, CSS & JavaScript.</footer>
+<script>
+  (function() {
+    // Existing languages array with only display info, actual labels fetched from Flask
+    const languages = [
+      { code: "en", icon: "EN", label: "English", flask_name: "English", thank: "Thank you!" },
+      { code: "hi", icon: "हिं", label: "हिंदी", flask_name: "Hindi", thank: "धन्यवाद!" },
+      { code: "ta", icon: "த", label: "தமிழ்", flask_name: "Tamil", thank: "நன்றி!" },
+      { code: "bn", icon: "বাং", label: "বাংলা", flask_name: "Bengali", thank: "ধন্যবাদ!" },
+      { code: "mr", icon: "म", label: "मराठी", flask_name: "Marathi", thank: "धन्यवाद!" },
+      { code: "te", icon: "తె", label: "తెలుగు", flask_name: "Telugu", thank: "ధన్యవాదాలు!" },
+      { code: "kn", icon: "ಕ", label: "ಕನ್ನಡ", flask_name: "Kannada", thank: "ಧನ್ಯವಾದಗಳು!" },
+      { code: "ml", icon: "മ", label: "മലയാളം", flask_name: "Malayalam", thank: "നന്ദി!" }
+    ];
+
+    let selectedLang = languages[0]; // Default to English
+    let currentLabels = {}; // To store the fetched labels for the current language
+
+    // Global variables for patient and appointment details
+    let patientId = null;
+    let appointmentDetails = {};
+    let currentKioskAppointment = null; // For kiosk flow
+
+    // Global variable to store the captured image data for face comparison (for sending to backend)
+    let capturedImageBlob = null; // Stores the actual Blob from app's face registration
+
+    // Unavailable Dates - Blocked from selection
+// Blocked dates - use actual Date objects (month is 0-indexed)
+const unavailableDates = [
+  new Date(2025, 5, 29), // June 29
+  new Date(2025, 6, 1),  // July 1
+  new Date(2025, 6, 5),  // July 5
+  new Date(2025, 6, 7),  // July 7
+  new Date(2025, 6, 10), // July 10
+  new Date(2025, 6, 14), // July 14
+  new Date(2025, 6, 15)  // July 15
+];
+
+flatpickr("#app-date", {
+  dateFormat: "Y-m-d",
+  minDate: "today",
+  disable: unavailableDates, // ← important: using Date objects
+  onDayCreate: function(dObj, dStr, fp, dayElem) {
+    const date = dayElem.dateObj;
+    const isoDate = date.toISOString().split("T")[0];
+    const disabledStrs = unavailableDates.map(d =>
+      d.toISOString().split("T")[0]
+    );
+    if (disabledStrs.includes(isoDate)) {
+      dayElem.style.backgroundColor = "#fbb";
+      dayElem.style.color = "#900";
+      dayElem.style.textDecoration = "line-through";
+    }
+  }
+});
+
+    // Function to fetch labels from Flask
+    async function fetchLabels(langFlaskName) {
+      try {
+        const response = await fetch(`http://127.0.0.1:5001/labels?lang=${langFlaskName}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching labels:', error);
+        // Fallback to English labels if fetch fails
+        return languages.find(l => l.flask_name === 'English').thank; // A simpler fallback for now
+      }
+    }
+
+    // Function to apply labels to the page
+    function applyLabels() {
+      document.querySelectorAll('[data-label]').forEach(element => {
+        const labelKey = element.getAttribute('data-label');
+        if (currentLabels[labelKey]) {
+          if (element.tagName === 'BUTTON' && !element.classList.contains('lang-button')) {
+            element.textContent = currentLabels[labelKey];
+          } else if (element.tagName === 'INPUT' && (element.type === 'submit' || element.type === 'button')) {
+            element.value = currentLabels[labelKey];
+          } else if (element.tagName === 'SPAN') {
+            // For spans within labels, update only the span's textContent
+            element.textContent = currentLabels[labelKey];
+          } else {
+            // For other elements like h2, label, etc.
+            element.textContent = currentLabels[labelKey];
+          }
+        }
+      });
+      // Update dynamic texts like app welcome and Kiosk welcome separately if they don't use data-label
+      document.querySelector('.welcome-app-title').textContent = currentLabels.welcome_to_app || 'Welcome to Smart Health';
+      document.querySelector('.welcome-app-desc').innerHTML = currentLabels.app_description || 'Your digital gateway to seamless healthcare.<br>Book appointments, check-in at kiosks, and manage your health easily.';
+      document.querySelector('header').textContent = currentLabels.app_header || 'Smart Health App & Kiosk';
+      document.querySelector('footer').innerHTML = currentLabels.app_footer || '© 2025 Smart Health App & Kiosk Demo.<br>Built with HTML, CSS & JavaScript.';
+
+      // Update placeholder for date input
+      const appDateInput = document.getElementById('app-date');
+      if (appDateInput) {
+          appDateInput.dataset.placeholder = currentLabels.select_date || "Select Date";
+      }
+    }
+
+    // Define all app steps and kiosk steps using their IDs
+    const appSteps = [
+      document.getElementById('app-welcome'), // 0
+      document.getElementById('app-lang'), // 1
+      document.getElementById('app-register'), // 2
+      document.getElementById('face-registration-section'), // 3
+      document.getElementById('app-appointment'), // 4
+      document.getElementById('app-confirm'), // 5
+      document.getElementById('app-sync'), // 6
+      document.getElementById('app-to-kiosk'), // 7
+      document.getElementById('app-reports') // 8
+    ];
+
+    const kioskSteps = [
+      document.getElementById('kiosk-lang'), // 0
+      document.getElementById('kiosk-login'), // 1
+      document.getElementById('kiosk-confirm'), // 2
+      document.getElementById('kiosk-vitals'), // 3
+      document.getElementById('kiosk-tele'), // 4
+      document.getElementById('kiosk-summary'), // 5
+      document.getElementById('kiosk-payment') // 6
+    ];
+
+    // Function to show a specific section and hide others
+    function showSection(sectionElement) {
+      document.querySelectorAll('section').forEach(section => {
+        section.classList.remove('active');
+      });
+      if (sectionElement) {
+        sectionElement.classList.add('active');
+      }
+    }
+
+    // --- APP FLOW HANDLERS ---
+
+    // Handle "Get Started" button click
+    document.getElementById('btn-app-welcome').onclick = async function() {
+      showSection(appSteps[1]); // Go to language selection
+    };
+
+    // Populate language buttons dynamically for App
+    const appLangBtns = document.getElementById('app-lang-btns');
+    languages.forEach(lang => {
+      const button = document.createElement('button');
+      button.className = 'lang-button';
+      button.innerHTML = `<span class="lang-texticon">${lang.icon}</span>${lang.label}`;
+      button.onclick = async () => {
+        document.querySelectorAll('.lang-button').forEach(btn => btn.classList.remove('selected'));
+        button.classList.add('selected');
+        selectedLang = lang;
+        currentLabels = await fetchLabels(selectedLang.flask_name);
+        applyLabels();
+        showSection(appSteps[2]); // Go to Registration/Login after language selection
+      };
+      appLangBtns.appendChild(button);
+    });
+
+    // Handle Registration form submission
+    document.getElementById('register-form').onsubmit = async function(event) {
+      event.preventDefault();
+      const name = document.getElementById('name-input').value;
+      const mobile = document.getElementById('mobile-input').value;
+      const aadhaar = document.getElementById('aadhaar-input').value;
+
+      // Simulate API call for registration/login
+      // In a real app, this would send data to backend and get a real patientId
+      patientId = 'PAT' + Math.floor(Math.random() * 1000000); // Dummy patient ID
+
+      // Enable face registration button
+      document.getElementById('btn-proceed-face-reg').disabled = false;
+
+      alert(currentLabels.registration_success_msg || `Registration/Login successful! Your Patient ID is: ${patientId}`);
+    };
+
+    // Handle "Proceed to Face Registration" button click
+    document.getElementById('btn-proceed-face-reg').onclick = function() {
+      showSection(appSteps[3]); // appSteps[3] is face-registration-section
+    };
+
+    // Face Registration/Recognition Logic
+    const webcamVideo = document.getElementById('webcam-video');
+    const webcamCanvas = document.getElementById('webcam-canvas');
+    const uploadPhotoInput = document.getElementById('upload-photo-input');
+    const uploadPreviewImg = document.getElementById('upload-preview-img');
+    const btnCapturePhoto = document.getElementById('btn-capture-photo');
+    const btnUploadPhoto = document.getElementById('btn-upload-photo');
+    const btnRegisterFace = document.getElementById('btn-register-face');
+    const faceRegStatus = document.getElementById('face-reg-status');
+
+    // Request camera access
+    async function setupWebcam() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            webcamVideo.srcObject = stream;
+            webcamVideo.style.display = 'block';
+            webcamCanvas.style.display = 'none';
+            uploadPreviewImg.style.display = 'none';
+        } catch (err) {
+            console.error("Error accessing webcam: ", err);
+            faceRegStatus.textContent = currentLabels.webcam_error || 'Webcam access denied or not available.';
+            faceRegStatus.classList.add('face-error');
+            btnCapturePhoto.disabled = true; // Disable capture if no webcam
+            btnUploadPhoto.disabled = false; // Still allow upload
+        }
+    }
+
+    btnCapturePhoto.onclick = () => {
+        if (!webcamVideo.srcObject) {
+            faceRegStatus.textContent = currentLabels.webcam_error || 'Webcam not active. Cannot capture photo.';
+            faceRegStatus.classList.add('face-error');
+            return;
+        }
+        const context = webcamCanvas.getContext('2d');
+        webcamCanvas.width = webcamVideo.videoWidth;
+        webcamCanvas.height = webcamVideo.videoHeight;
+        context.drawImage(webcamVideo, 0, 0, webcamCanvas.width, webcamCanvas.height);
+        webcamCanvas.toBlob(blob => {
+            capturedImageBlob = blob; // Store the blob for backend sending
+            uploadPreviewImg.src = URL.createObjectURL(blob);
+            uploadPreviewImg.style.display = 'block';
+            webcamVideo.style.display = 'none'; // Hide video, show preview
+            btnRegisterFace.disabled = false;
+            faceRegStatus.textContent = currentLabels.photo_captured || "Photo captured. Click Register Face.";
+            faceRegStatus.classList.remove('face-error');
+
+        }, 'image/jpeg');
+    };
+
+    btnUploadPhoto.onclick = () => {
+        uploadPhotoInput.click(); // Trigger file input click
+    };
+
+    uploadPhotoInput.onchange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadPreviewImg.src = e.target.result;
+                uploadPreviewImg.style.display = 'block';
+                webcamVideo.style.display = 'none'; // Hide video
+                webcamCanvas.style.display = 'none'; // Hide canvas
+                capturedImageBlob = file; // Store the File object directly
+                btnRegisterFace.disabled = false;
+                faceRegStatus.textContent = currentLabels.photo_uploaded || "Photo uploaded. Click Register Face.";
+                faceRegStatus.classList.remove('face-error');
+            };
+            reader.readAsDataURL(file); // Read as Data URL for preview
+        }
+    };
+
+    // Handle "Register Face" button click (send to backend)
+    document.getElementById('btn-register-face').onclick = async function() {
+      if (!patientId) { // Check if basic registration happened
+        faceRegStatus.textContent = currentLabels.register_first_error || 'Please register your basic details first.';
+        faceRegStatus.classList.add('face-error');
+        return;
+      }
+      if (!capturedImageBlob) { // Check if photo is ready
+        faceRegStatus.textContent = currentLabels.capture_upload_first || 'Please capture or upload a photo first.';
+        faceRegStatus.classList.add('face-error');
+        return;
+      }
+
+      faceRegStatus.textContent = currentLabels.registering_face || 'Registering face...';
+      faceRegStatus.classList.remove('face-error');
+      btnRegisterFace.disabled = true;
+
+      const formData = new FormData();
+      formData.append('patient_id', patientId);
+      formData.append('photo', capturedImageBlob, 'face.jpg');
+
+      try {
+        const response = await fetch('http://127.0.0.1:5002/register_face', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await response.json(); // Parse JSON response
+
+        if (response.ok && result.success) { // Check both HTTP status and internal success flag
+          faceRegStatus.textContent = currentLabels.face_registered_msg || `Face registered successfully for ${patientId}!`;
+          faceRegStatus.classList.remove('face-error');
+          setTimeout(() => {
+              showSection(appSteps[4]); // appSteps[4] is app-appointment
+              btnRegisterFace.disabled = false; // Re-enable for next time
+          }, 1000);
+        } else {
+          // Handle non-OK HTTP status or success:false
+          faceRegStatus.textContent = (currentLabels.face_registration_failed || `Face registration failed:`) + ` ${result.msg || 'Unknown error.'}`;
+          faceRegStatus.classList.add('face-error');
+          btnRegisterFace.disabled = false; // Re-enable for retry
+        }
+      } catch (error) {
+        console.error('Error registering face:', error);
+        faceRegStatus.textContent = currentLabels.network_error_face_reg || 'Network error or server unavailable during face registration.';
+        faceRegStatus.classList.add('face-error');
+        btnRegisterFace.disabled = false; // Re-enable for retry
+      }
+    };
+
+    // Handle "Back to Registration" button click
+    document.getElementById('btn-back-to-register').onclick = function() {
+      showSection(appSteps[2]); // appSteps[2] is app-register
+      // Reset face registration state
+      if (webcamVideo.srcObject) {
+          webcamVideo.srcObject.getTracks().forEach(track => track.stop());
+      }
+      webcamVideo.style.display = 'block';
+      webcamCanvas.style.display = 'none';
+      uploadPreviewImg.style.display = 'none';
+      btnRegisterFace.disabled = true;
+      capturedImageBlob = null; // Clear captured image
+      faceRegStatus.textContent = '';
+      faceRegStatus.classList.remove('face-error');
+      setupWebcam(); // Restart webcam if returning to this section
+    };
+
+    // Handle date input change to check for availability
+    const appDateInput = document.getElementById('app-date');
+    if (appDateInput) {
+        // Initial check for placeholder
+        if (!appDateInput.value) {
+            appDateInput.classList.remove('has-value');
+        } else {
+            appDateInput.classList.add('has-value');
+        }
+
+        appDateInput.addEventListener('change', function() {
+            if (this.value) { // A date has been selected
+                this.classList.add('has-value');
+                const selectedDate = new Date(this.value); // Selected date from input (YYYY-MM-DD)
+                const selectedDateString = selectedDate.toDateString(); // Convert to format used in availableDates
+
+                if (!availableDates.includes(selectedDateString)) {
+                    this.classList.add('date-error-input'); // Add error class for red styling
+                    // Use a custom message box instead of alert if possible, for better UX
+                    setTimeout(() => { // Briefly show red, then clear
+                        this.value = ''; // Clear the input
+                        this.classList.remove('has-value');
+                        this.classList.remove('date-error-input'); // Remove error class
+                        alert(currentLabels.date_unavailable || "Selected date is not available. Please choose another.");
+                    }, 100); // Short delay to let red style apply
+                } else {
+                    this.classList.remove('date-error-input'); // Ensure no red if valid
+                }
+            } else { // Input cleared
+                this.classList.remove('has-value');
+                this.classList.remove('date-error-input');
+            }
+        });
+
+        // Set min date to today + 1 day to prevent past date selection
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        const minDate = tomorrow.toISOString().split('T')[0]; // Format toYYYY-MM-DD
+        appDateInput.min = minDate;
+    }
+
+
+    // Handle "Confirm Appointment" button click (form submission)
+    document.getElementById('appointment-form').onsubmit = function(event) {
+      event.preventDefault(); // Prevent default form submission
+
+      const dept = document.getElementById('app-dept').value;
+      const doc = document.getElementById('app-doc').value;
+      const mode = document.getElementById('app-mode').value;
+      const date = document.getElementById('app-date').value;
+      const time = document.getElementById('app-time').value;
+
+      const errorElement = document.getElementById('appt-form-error');
+      if (errorElement) {
+          errorElement.classList.add('hidden'); // Hide previous errors
+      }
+
+      if (!dept || !doc || !mode || !date || !time) {
+        if (errorElement) {
+          errorElement.classList.remove('hidden'); // Show error if fields are empty
+          errorElement.textContent = currentLabels.fill_all_fields || "Please fill all fields.";
+        }
+        return; // Stop the function here if validation fails
+      }
+
+      // Populate appointmentDetails from the form
+      appointmentDetails.department = dept;
+      appointmentDetails.doctor = doc;
+      appointmentDetails.mode = mode;
+      appointmentDetails.date = date;
+      appointmentDetails.time = time;
+      appointmentDetails.token = Math.floor(Math.random() * 100) + 1; // Dummy token
+      appointmentDetails.patientId = patientId; // Ensure patientId is captured
+
+      // Display confirmation details
+      document.getElementById('app-confirm-details').innerHTML = `
+        <b>${currentLabels.doctor || 'Doctor'}:</b> ${appointmentDetails.doctor}<br>
+        <b>${currentLabels.department || 'Department'}:</b> ${appointmentDetails.department}<br>
+        <b>${currentLabels.mode || 'Mode'}:</b> ${appointmentDetails.mode}<br>
+        <b>${currentLabels.date_time || 'Date & Time'}:</b> ${appointmentDetails.date} ${appointmentDetails.time}<br>
+        <b>${currentLabels.token || 'Token'}:</b> ${appointmentDetails.token}<br>
+        <b>${currentLabels.patient_id || 'Patient ID'}:</b> ${patientId}
+      `;
+
+      // Generate QR code for the appointment (using patientId and token as data)
+      const qrData = JSON.stringify({ patientId: patientId, token: appointmentDetails.token, type: 'appointment' });
+      document.getElementById('app-confirm-qr').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}" alt="QR Code">`;
+
+      showSection(appSteps[5]); // Show Appointment Confirmed (app-confirm)
+    };
+
+    document.getElementById('btn-app-sync').onclick = function() {
+  if (appointmentDetails.mode === 'In-Person') {
+    // Skip kiosk flow for In-Person mode
+    document.getElementById('report-date').textContent = appointmentDetails.date + ' ' + appointmentDetails.time;
+    document.getElementById('report-doctor').textContent = appointmentDetails.doctor;
+    document.getElementById('thankyou-text').textContent = selectedLang.thank;
+    showSection(appSteps[8]); // Go directly to reports
+    return;
+  }
+
+  // Default behavior for Teleconsultation
+  const qrData = JSON.stringify({ patientId: patientId, appointment: appointmentDetails, type: 'kiosk-sync' });
+  document.getElementById('app-sync-qr').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(qrData)}" alt="QR Code" style="width:100%;height:100%;border-radius:16px;" />`;
+
+  document.getElementById('app-sync-msg').innerHTML =
+    `${currentLabels.appointment_scheduled_msg_part1 || 'Your appointment is scheduled for'} <b>${appointmentDetails.date} ${appointmentDetails.time}</b>.<br>${currentLabels.appointment_scheduled_msg_part2 || 'Please scan this QR at the kiosk with Patient ID:'} <b>${patientId}</b>`;
+
+  showSection(appSteps[6]); // app-sync page
+};
+
+
+    // Handle "Done" button click (on app-sync page)
+    document.getElementById('btn-app-done').onclick = function() {
+      showSection(appSteps[7]); // appSteps[7] is app-to-kiosk
+    };
+
+    // Handle "Continue" button click (on app-to-kiosk page)
+    document.getElementById('btn-to-kiosk').onclick = function() {
+      showSection(kioskSteps[0]); // Go to Kiosk Language selection
+    };
+
+
+    // --- KIOSK FLOW HANDLERS ---
+
+    // Populate language buttons dynamically for Kiosk
+    const kioskLangBtns = document.getElementById('kiosk-lang-btns');
+    languages.forEach(lang => {
+      const button = document.createElement('button');
+      button.className = 'lang-button';
+      button.innerHTML = `<span class="lang-texticon">${lang.icon}</span>${lang.label}`;
+      button.onclick = async () => {
+        document.querySelectorAll('.lang-button').forEach(btn => btn.classList.remove('selected'));
+        button.classList.add('selected');
+        selectedLang = lang;
+        currentLabels = await fetchLabels(selectedLang.flask_name);
+        applyLabels();
+        showSection(kioskSteps[1]); // Go to Kiosk Login after language selection
+      };
+      kioskLangBtns.appendChild(button);
+    });
+
+    // Kiosk Login webcam for live scanning
+    const kioskFaceScanVideo = document.createElement('video');
+    kioskFaceScanVideo.id = 'kiosk-face-scan-video';
+    kioskFaceScanVideo.autoplay = true;
+    kioskFaceScanVideo.playsInline = true;
+    kioskFaceScanVideo.style.display = 'none'; // Hidden by default
+    const kioskFaceScanCanvas = document.createElement('canvas');
+    kioskFaceScanCanvas.style.display = 'none'; // Hidden
+    const kioskLoginSection = document.getElementById('kiosk-login');
+    const kioskLoginIconsDiv = document.querySelector('.login-icons'); // Assuming this exists to insert before
+    kioskLoginSection.insertBefore(kioskFaceScanVideo, kioskLoginIconsDiv.nextSibling); // Insert after login icons
+    kioskLoginSection.insertBefore(kioskFaceScanCanvas, kioskFaceScanVideo.nextSibling);
+
+
+    // Kiosk Login handlers
+    document.getElementById('face-login').onclick = async function() {
+      document.getElementById('pid-login-box').style.display = 'none'; // Hide PID box
+      const kioskLoginStatus = document.getElementById('kiosk-login-status');
+      kioskLoginStatus.textContent = ''; // Clear previous status
+
+      kioskFaceScanVideo.style.display = 'block'; // Show live video feed
+      kioskLoginStatus.textContent = currentLabels.scanning_face_sim || 'Scanning face...';
+      kioskLoginStatus.classList.remove('face-error');
+
+      let kioskWebcamStream = null;
+      try {
+          kioskWebcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
+          kioskFaceScanVideo.srcObject = kioskWebcamStream;
+          await kioskFaceScanVideo.play(); // Ensure video is playing
+
+          // Simulate a delay for scanning, then capture and send
+          setTimeout(async () => {
+            if (!kioskFaceScanVideo.videoWidth || !kioskFaceScanVideo.videoHeight) {
+                console.error("Kiosk video stream not ready for capture.");
+                kioskLoginStatus.textContent = currentLabels.webcam_error || 'Webcam not ready for capture.';
+                kioskLoginStatus.classList.add('face-error');
+                kioskFaceScanVideo.style.display = 'none';
+                if (kioskWebcamStream) kioskWebcamStream.getTracks().forEach(track => track.stop());
+                return;
+            }
+
+            // Capture frame from video
+            kioskFaceScanCanvas.width = kioskFaceScanVideo.videoWidth;
+            kioskFaceScanCanvas.height = kioskFaceScanVideo.videoHeight;
+            const context = kioskFaceScanCanvas.getContext('2d');
+            context.drawImage(kioskFaceScanVideo, 0, 0, kioskFaceScanCanvas.width, kioskFaceScanCanvas.height);
+            
+            // Stop webcam stream immediately after capturing the frame
+            if (kioskWebcamStream) {
+                kioskWebcamStream.getTracks().forEach(track => track.stop());
+                kioskFaceScanVideo.srcObject = null; // Clear the video source
+            }
+            kioskFaceScanVideo.style.display = 'none'; // Hide video element after capture
+
+            kioskFaceScanCanvas.toBlob(async blob => {
+                const formData = new FormData();
+                formData.append('photo', blob, 'kiosk_live_face.jpg');
+
+                try {
+                  const response = await fetch('http://127.0.0.1:5002/recognize_face', {
+                    method: 'POST',
+                    body: formData
+                  });
+                  const result = await response.json();
+
+                  if (response.ok && result.success && result.patient_id === patientId) {
+                    // Check if backend recognized AND if it's the patient ID registered in the app
+                    kioskLoginStatus.textContent = currentLabels.face_recognized || `Face recognized. Welcome, ${patientId}!`;
+                    kioskLoginStatus.classList.remove('face-error');
+                    document.getElementById('kiosk-confirm-details').innerHTML = `
+                      <b>${currentLabels.patient_id || 'Patient ID'}:</b> ${patientId}<br>
+                      <b>${currentLabels.appointment || 'Appointment'}:</b> ${appointmentDetails.date || 'N/A'} ${appointmentDetails.time || 'N/A'}
+                    `;
+                    const qrData = JSON.stringify({ patientId: patientId, appointment: appointmentDetails, type: 'kiosk-confirm' });
+                    document.getElementById('kiosk-confirm-qr').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}" alt="QR Code">`;
+
+                    showSection(kioskSteps[2]); // Go to Kiosk Confirm
+                  } else {
+                    // If response.ok is false, or result.success is false, or patient_id doesn't match
+                    kioskLoginStatus.textContent = (currentLabels.face_not_recognized_kiosk || 'Face not recognized. Please try Patient ID or register in the app.') + (result.msg ? ` (${result.msg})` : '');
+                    kioskLoginStatus.classList.add('face-error');
+                  }
+                } catch (error) {
+                  console.error('Error recognizing face:', error);
+                  kioskLoginStatus.textContent = currentLabels.network_error_face_rec || 'Network error or server unavailable during face recognition.';
+                  kioskLoginStatus.classList.add('face-error');
+                }
+            }, 'image/jpeg');
+          }, 3000); // Simulate 3 seconds for scanning
+      } catch (err) {
+          console.error("Error accessing webcam for kiosk login:", err);
+          kioskLoginStatus.textContent = currentLabels.webcam_error || 'Webcam access denied or not available for kiosk scan.';
+          kioskLoginStatus.classList.add('face-error');
+          kioskFaceScanVideo.style.display = 'none';
+      }
+    };
+
+    document.getElementById('finger-login').onclick = function() {
+      // Ensure kiosk webcam is off if coming from Face ID
+      if (kioskFaceScanVideo.srcObject) {
+          kioskFaceScanVideo.srcObject.getTracks().forEach(track => track.stop());
+          kioskFaceScanVideo.srcObject = null;
+          kioskFaceScanVideo.style.display = 'none';
+      }
+
+      document.getElementById('pid-login-box').style.display = 'none'; // Hide PID box
+      document.getElementById('kiosk-login-status').textContent = currentLabels.scanning_fingerprint || 'Scanning fingerprint...';
+      document.getElementById('kiosk-login-status').classList.remove('face-error');
+      setTimeout(() => {
+        if (patientId) { // Check if patientId is registered
+          document.getElementById('kiosk-login-status').textContent = currentLabels.fingerprint_recognized || `Fingerprint recognized. Welcome, ${patientId}!`;
+          document.getElementById('kiosk-confirm-details').innerHTML = `
+            <b>${currentLabels.patient_id || 'Patient ID'}:</b> ${patientId}<br>
+            <b>${currentLabels.appointment || 'Appointment'}:</b> ${appointmentDetails.date || 'N/A'} ${appointmentDetails.time || 'N/A'}
+          `;
+          const qrData = JSON.stringify({ patientId: patientId, appointment: appointmentDetails, type: 'kiosk-confirm' });
+          document.getElementById('kiosk-confirm-qr').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}" alt="QR Code">`;
+          showSection(kioskSteps[2]); // Go to Kiosk Confirm
+        } else {
+          document.getElementById('kiosk-login-status').textContent = currentLabels.fingerprint_not_recognized || 'Fingerprint not recognized. Please register or try another method.';
+          document.getElementById('kiosk-login-status').classList.add('face-error');
+        }
+      }, 2000);
+    };
+
+    document.getElementById('pid-login').onclick = function() {
+      // Ensure kiosk webcam is off if coming from Face ID
+      if (kioskFaceScanVideo.srcObject) {
+          kioskFaceScanVideo.srcObject.getTracks().forEach(track => track.stop());
+          kioskFaceScanVideo.srcObject = null;
+          kioskFaceScanVideo.style.display = 'none';
+      }
+      document.getElementById('pid-login-box').style.display = 'block';
+      document.getElementById('kiosk-login-status').textContent = ''; // Clear previous status
+    };
+
+    document.getElementById('btn-pid-go').onclick = function() {
+      const inputPid = document.getElementById('pid-input').value;
+      document.getElementById('kiosk-login-status').textContent = currentLabels.verifying || 'Verifying...';
+      document.getElementById('kiosk-login-status').classList.remove('face-error');
+      setTimeout(() => {
+        if (inputPid === patientId) { // Check against the globally set patientId
+          document.getElementById('kiosk-login-status').textContent = currentLabels.welcome_patient || `Welcome, ${patientId}!`;
+          document.getElementById('kiosk-confirm-details').innerHTML = `
+            <b>${currentLabels.patient_id || 'Patient ID'}:</b> ${patientId}<br>
+            <b>${currentLabels.appointment || 'Appointment'}:</b> ${appointmentDetails.date || 'N/A'} ${appointmentDetails.time || 'N/A'}
+          `;
+          const qrData = JSON.stringify({ patientId: patientId, appointment: appointmentDetails, type: 'kiosk-confirm' });
+          document.getElementById('kiosk-confirm-qr').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}" alt="QR Code">`;
+          showSection(kioskSteps[2]); // Go to Kiosk Confirm
+        } else {
+          document.getElementById('kiosk-login-status').textContent = currentLabels.invalid_patient_id || 'Invalid Patient ID.';
+          document.getElementById('kiosk-login-status').classList.add('face-error');
+        }
+      }, 1500);
+    };
+
+    document.getElementById('btn-kiosk-confirm').onclick = function() {
+      showSection(kioskSteps[3]); // Go to Vitals & Diagnostics
+    };
+
+    document.getElementById('btn-kiosk-vitals').onclick = function() {
+      document.getElementById('kiosk-vitals-list').textContent = currentLabels.measuring || 'Measuring...';
+      setTimeout(() => {
+        document.getElementById('kiosk-vitals-list').innerHTML = currentLabels.vitals_captured || `Height: 172 cm<br>Weight: 68 kg<br>Temp: 98.6°F<br>BP: 120/80 mmHg<br>Heart Rate: 72 bpm<br>BMI: 23.0`;
+        document.getElementById('btn-kiosk-vitals-next').style.display = 'block';
+      }, 2000);
+    };
+
+    document.getElementById('btn-kiosk-vitals-next').onclick = function() {
+      showSection(kioskSteps[4]); // Go to Teleconsultation
+    };
+
+    document.getElementById('btn-kiosk-tele').onclick = function() {
+      document.getElementById('kiosk-tele-status').textContent = currentLabels.connecting || 'Connecting to remote doctor...';
+      setTimeout(() => {
+        document.getElementById('kiosk-tele-status').textContent = currentLabels.consultation_complete || 'Consultation complete. Prescription generated.';
+        document.getElementById('btn-kiosk-tele-next').style.display = 'block';
+      }, 3000);
+    };
+
+    document.getElementById('btn-kiosk-tele-next').onclick = function() {
+      document.getElementById('kiosk-summary-details').innerHTML = currentLabels.summary_details || `<b>Diagnosis:</b> Hypertension<br><b>Prescription:</b> Amlodipine 5mg daily<br><b>Follow-up:</b> 1 month<br><b>Summary sent to App.</b>`;
+      showSection(kioskSteps[5]); // Go to Consultation Summary
+    };
+
+    document.getElementById('btn-kiosk-summary-next').onclick = function() { showSection(kioskSteps[6]); };
+
+    document.getElementById('btn-kiosk-pay').onclick = function() {
+      document.getElementById('kiosk-pay-status').textContent = currentLabels.processing_payment || 'Processing payment...';
+      setTimeout(() => {
+        document.getElementById('kiosk-pay-status').textContent = currentLabels.payment_successful || 'Payment successful! Receipt sent to app.';
+        setTimeout(() => {
+          document.getElementById('report-date').textContent = appointmentDetails.date + ' ' + appointmentDetails.time;
+          document.getElementById('report-doctor').textContent = appointmentDetails.doctor; // Corrected: use .doctor
+          document.getElementById('thankyou-text').textContent = selectedLang.thank; // This is a special case for thank you message
+          showSection(appSteps[8]); // appSteps[8] is app-reports
+        }, 1200);
+      }, 1700);
+    };
+
+    // Initialize the app with English labels (or previously saved language)
+    showSection(appSteps[0]); // Start with the welcome page
+    // Initial load to fetch English labels
+    (async () => {
+        selectedLang = languages[0]; // Set initial language to English
+        currentLabels = await fetchLabels(selectedLang.flask_name);
+        applyLabels();
+        setupWebcam(); // Initialize webcam on page load
+    })();
+
+  })();
+</script>
+</body>
+</html>
